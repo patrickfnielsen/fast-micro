@@ -1,4 +1,3 @@
-from fast_micro import logger
 from fast_micro.constants import UNDERSCORE_RE
 
 
