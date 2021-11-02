@@ -1,19 +1,20 @@
+import requests
 from requests import *
 from typing import Dict
 from starlette_context.ctx import context
 from starlette_context.header_keys import HeaderKeys
 
 
-def override_kwargs(**kwargs) -> Dict[str, any]:
-    kwargs["headers"] =  {
-        **kwargs["headers"],
+def override_kwargs(**kwargs) -> Dict[str, any]:    
+    kwargs["headers"] = {
+        **kwargs.get("headers", {}),
         HeaderKeys.correlation_id.value: context.data.get(HeaderKeys.correlation_id.value, None) if context.exists() else None
     }
 
     return kwargs
 
 
-def request(method, url, **kwargs):
+def request(method, url, **kwargs) -> models.Response:
     """Constructs and sends a :class:`Request <Request>`.
     :param method: method for the new :class:`Request` object: ``GET``, ``OPTIONS``, ``HEAD``, ``POST``, ``PUT``, ``PATCH``, or ``DELETE``.
     :param url: URL for the new :class:`Request` object.
@@ -52,9 +53,10 @@ def request(method, url, **kwargs):
     """
 
     kwargs = override_kwargs(**kwargs)
-    return request(method=method, url=url, **kwargs)
+    return requests.request(method=method, url=url, **kwargs)
 
-def get(url, params=None, **kwargs):
+
+def get(url, params=None, **kwargs) -> models.Response:
     r"""Sends a GET request.
     :param url: URL for the new :class:`Request` object.
     :param params: (optional) Dictionary, list of tuples or bytes to send
@@ -65,10 +67,10 @@ def get(url, params=None, **kwargs):
     """
 
     kwargs = override_kwargs(**kwargs)
-    return get(url, params=params, **kwargs)
+    return requests.get(url, params=params, **kwargs)
 
 
-def options(url, **kwargs):
+def options(url, **kwargs) -> models.Response:
     r"""Sends an OPTIONS request.
     :param url: URL for the new :class:`Request` object.
     :param \*\*kwargs: Optional arguments that ``request`` takes.
@@ -77,10 +79,10 @@ def options(url, **kwargs):
     """
 
     kwargs = override_kwargs(**kwargs)
-    return options(url, **kwargs)
+    return requests.options(url, **kwargs)
 
 
-def head(url, **kwargs):
+def head(url, **kwargs) -> models.Response:
     r"""Sends a HEAD request.
     :param url: URL for the new :class:`Request` object.
     :param \*\*kwargs: Optional arguments that ``request`` takes. If
@@ -91,10 +93,10 @@ def head(url, **kwargs):
     """
 
     kwargs = override_kwargs(**kwargs)
-    return head(url, **kwargs)
+    return requests.head(url, **kwargs)
 
 
-def post(url, data=None, json=None, **kwargs):
+def post(url, data=None, json=None, **kwargs) -> models.Response:
     r"""Sends a POST request.
     :param url: URL for the new :class:`Request` object.
     :param data: (optional) Dictionary, list of tuples, bytes, or file-like
@@ -106,10 +108,10 @@ def post(url, data=None, json=None, **kwargs):
     """
 
     kwargs = override_kwargs(**kwargs)
-    return post(url, data=data, json=json, **kwargs)
+    return requests.post(url, data=data, json=json, **kwargs)
 
 
-def put(url, data=None, **kwargs):
+def put(url, data=None, **kwargs) -> models.Response:
     r"""Sends a PUT request.
     :param url: URL for the new :class:`Request` object.
     :param data: (optional) Dictionary, list of tuples, bytes, or file-like
@@ -121,10 +123,10 @@ def put(url, data=None, **kwargs):
     """
 
     kwargs = override_kwargs(**kwargs)
-    return put(url, data=data, **kwargs)
+    return requests.put(url, data=data, **kwargs)
 
 
-def patch(url, data=None, **kwargs):
+def patch(url, data=None, **kwargs) -> models.Response:
     r"""Sends a PATCH request.
     :param url: URL for the new :class:`Request` object.
     :param data: (optional) Dictionary, list of tuples, bytes, or file-like
@@ -136,10 +138,10 @@ def patch(url, data=None, **kwargs):
     """
 
     kwargs = override_kwargs(**kwargs)
-    return patch(url, data=data, **kwargs)
+    return requests.patch(url, data=data, **kwargs)
 
 
-def delete(url, **kwargs):
+def delete(url, **kwargs) -> models.Response:
     r"""Sends a DELETE request.
     :param url: URL for the new :class:`Request` object.
     :param \*\*kwargs: Optional arguments that ``request`` takes.
@@ -148,4 +150,4 @@ def delete(url, **kwargs):
     """
 
     kwargs = override_kwargs(**kwargs)
-    return delete(url, **kwargs)
+    return requests.delete(url, **kwargs)

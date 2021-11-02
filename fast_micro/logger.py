@@ -1,7 +1,7 @@
 import logging
 import logging.config
 import structlog
-from typing import Any, MutableMapping, Tuple
+from typing import Any, MutableMapping, Optional, Tuple
 from starlette_context import context
 
 
@@ -11,7 +11,7 @@ shared_processors: Tuple[structlog.types.Processor, ...] = (
     structlog.processors.TimeStamper(fmt="iso"),
 )
 
-logging_config = {
+default_logging_config = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
@@ -23,7 +23,7 @@ logging_config = {
     },
     "handlers": {
         "default": {
-            "level": "INFO",
+            "level": "DEBUG",
             "class": "logging.StreamHandler",
             "formatter": "json",
         }
@@ -46,7 +46,7 @@ logging_config = {
     },
 }
 
-def setup_logging(log_level: str) -> None:
+def setup_logging(log_level: str, logging_config: Optional[dict]) -> None:
     def add_app_context(logger: logging.Logger, method_name: str, event_dict: MutableMapping[str, Any]) -> MutableMapping[str, Any]:
         if context.exists():
             event_dict.update(context.data)
@@ -69,6 +69,9 @@ def setup_logging(log_level: str) -> None:
         wrapper_class=structlog.stdlib.BoundLogger,
         cache_logger_on_first_use=True,
     )
+
+    if not logging_config:
+        logging_config = default_logging_config
 
     logging_config["loggers"][""]["level"] = log_level
     logging.config.dictConfig(logging_config)
