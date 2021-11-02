@@ -33,6 +33,11 @@ default_logging_config = {
             "handlers": ["default"], 
             "level": "INFO"
         },
+        "fast_micro": {
+            "handlers": ["default"],
+            "level": "INFO",
+            "propagate": False,
+        },
         "uvicorn.error": {
             "handlers": ["default"],
             "level": "INFO",
@@ -74,6 +79,7 @@ def setup_logging(log_level: str, logging_config: Optional[dict] = None) -> None
         logging_config = default_logging_config
 
     logging_config["loggers"][""]["level"] = log_level
+    logging_config["loggers"]["fast_micro"]["level"] = log_level
     logging.config.dictConfig(logging_config)
 
 
