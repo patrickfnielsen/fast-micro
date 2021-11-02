@@ -46,7 +46,7 @@ default_logging_config = {
     },
 }
 
-def setup_logging(log_level: str, logging_config: Optional[dict]) -> None:
+def setup_logging(log_level: str, logging_config: Optional[dict] = None) -> None:
     def add_app_context(logger: logging.Logger, method_name: str, event_dict: MutableMapping[str, Any]) -> MutableMapping[str, Any]:
         if context.exists():
             event_dict.update(context.data)
