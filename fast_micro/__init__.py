@@ -23,7 +23,7 @@ def create_app(
     )
 
     if context_plugins:
-        app_context_plugins = app_context_plugins + context_plugins
+        app_context_plugins = app_context_plugins + tuple(context_plugins)
 
     skip_route_logging = skip_route_logging if skip_route_logging else [health_url]
     app_middleware = [
