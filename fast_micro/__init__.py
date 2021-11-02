@@ -17,15 +17,18 @@ def create_app(
     setup_logging(log_level, logging_config)
 
     skip_route_logging = skip_route_logging if skip_route_logging else [health_url]
-    middleware = [
+    app_middleware = [
         Middleware(RawContextMiddleware, plugins=(
             plugins.RequestIdPlugin(),
             plugins.CorrelationIdPlugin(),
         )),
         Middleware(RequestEncrichMiddleware, skip_routes=skip_route_logging),
-    ].extend(middleware)
-
-    app: FastAPI = FastAPI(middleware=middleware)
+    ]
+    
+    if middleware:
+        app_middleware.extend(middleware)
+    
+    app: FastAPI = FastAPI(middleware=app_middleware)
 
     @app.get(health_url)
     def _default_get_health():

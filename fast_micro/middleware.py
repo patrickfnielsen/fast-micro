@@ -7,7 +7,7 @@ from fast_micro.constants import HEADER_PROCESS_TIME
 from fast_micro.logger import get_logger
 
 
-logger = get_logger(__name__)
+logger = get_logger("request")
 
 class RequestEncrichMiddleware(BaseHTTPMiddleware):
     def __init__(self, app: FastAPI, skip_routes: List[str] = None) -> None:
