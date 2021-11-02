@@ -16,7 +16,7 @@ def get_long_description():
 setup(
     name="fast-micro",
     python_requires=">=3.6",
-    version="0.0.4",
+    version="0.0.5",
     url="https://github.com/patrickfnielsen/fast-micro",
     description="Opinionated FastAPI microservice setup to provide correlation, camelCase models, and struct logging",
     long_description=get_long_description(),
