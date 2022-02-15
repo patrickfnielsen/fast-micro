@@ -1,14 +1,26 @@
 import logging
 import logging.config
+from multiprocessing import Event
 import structlog
 from typing import Any, MutableMapping, Optional, Tuple
 from starlette_context import context
+from structlog.types import WrappedLogger, EventDict
+
+
+def format_exc_message(logger: WrappedLogger, name: str, event_dict: EventDict) -> EventDict:
+    exc_info = event_dict.get("exc_info", None)
+    if exc_info and isinstance(exc_info, Tuple):
+        event_dict["exception_message"] = exc_info[1]
+
+    return event_dict
 
 
 shared_processors: Tuple[structlog.types.Processor, ...] = (
     structlog.stdlib.add_logger_name,
     structlog.stdlib.add_log_level,
     structlog.processors.TimeStamper(fmt="iso"),
+    format_exc_message,
+    structlog.processors.format_exc_info,
 )
 
 default_logging_config = {
@@ -66,7 +78,6 @@ def setup_logging(log_level: str, logging_config: Optional[dict] = None) -> None
             structlog.stdlib.PositionalArgumentsFormatter(),
             structlog.processors.StackInfoRenderer(),
             structlog.processors.UnicodeDecoder(),
-            structlog.processors.format_exc_info,
             structlog.stdlib.ProcessorFormatter.wrap_for_formatter
         ],
         context_class=dict,
