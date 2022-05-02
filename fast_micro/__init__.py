@@ -1,18 +1,23 @@
 import socket, time
-from typing import List, Optional
-from fastapi import FastAPI
+from typing import Callable, List, Optional
+from fastapi import FastAPI, Request
 from starlette.middleware import Middleware
 from starlette_context import plugins
 from starlette_context.middleware import RawContextMiddleware
 from starlette_context.plugins.base import Plugin
 from fast_micro.logger import setup_logging
 from fast_micro.middleware import RequestEncrichMiddleware
+from permission import PERMISSION_FUNC
 
 
 def create_app(
-        log_level: str = "INFO", skip_route_logging: List[str] = None, 
-        health_url: str = "/health", middleware: List[Middleware] = None,
-        context_plugins: List[Plugin] = None, logging_config: Optional[dict] = None
+        log_level: str = "INFO", 
+        permission_handler: Callable[[Request, List[str]], bool] = None,
+        skip_route_logging: List[str] = None, 
+        health_url: str = "/health",
+        middleware: List[Middleware] = None,
+        context_plugins: List[Plugin] = None,
+        logging_config: Optional[dict] = None
     ) -> FastAPI:
 
     setup_logging(log_level, logging_config)
@@ -21,6 +26,10 @@ def create_app(
         plugins.RequestIdPlugin(),
         plugins.CorrelationIdPlugin(),
     )
+
+    if permission_handler:
+        global PERMISSION_FUNC
+        PERMISSION_FUNC = permission_handler
 
     if context_plugins:
         app_context_plugins = app_context_plugins + tuple(context_plugins)

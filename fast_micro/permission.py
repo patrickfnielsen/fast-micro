@@ -1,59 +1,44 @@
 from abc import ABC, abstractmethod
+from typing import Callable, List
 
 from starlette import status
 from starlette.requests import Request
 from starlette.exceptions import HTTPException
 
 
-"""
-Credits: https://github.com/identixone/fastapi_contrib/blob/master/fastapi_contrib/permissions.py
-"""
-class BasePermission(ABC):
-    """
-    Abstract permission that all other Permissions must be inherited from.
-    Defines basic error message, status & error codes.
-    Upon initialization, calls abstract method  `has_required_permissions`
-    which will be specific to concrete implementation of Permission class.
-    You would write your permissions like this:
-    .. code-block:: python
-        class TeapotUserAgentPermission(BasePermission):
-            def has_required_permissions(self, request: Request) -> bool:
-                return request.headers.get('User-Agent') == "Teapot v1.0"
-    """
-    error_msg = "Forbidden"
-    status_code = status.HTTP_403_FORBIDDEN
-
-    @abstractmethod
-    def has_required_permissions(self, request: Request) -> bool:
-        ...
-
-    def __init__(self, request: Request):
-        if not self.has_required_permissions(request):
-            raise HTTPException(
-                status_code=self.status_code,
-                detail=self.error_msg
-            )
+PERMISSION_FUNC: Callable[[Request, List[str]], bool] = lambda req, perms : True
 
 
 class PermissionsDependency(object):
     """
-    Permission dependency that is used to define and check all the permission
-    classes from one place inside route definition.
+    Permission dependency that is used to define and check all the permissions
+    from one place inside route definition.
+
+    Always returns true unless permission_handler has been set in create_app.
+
     Use it as an argument to FastAPI's `Depends` as follows:
     .. code-block:: python
         app = FastAPI()
         @app.get(
             "/teapot/",
             dependencies=[Depends(
-                PermissionsDependency([TeapotUserAgentPermission]))]
+                PermissionsDependency(["TeapotUserAgentPermission"]))]
         )
         async def teapot() -> dict:
             return {"teapot": True}
     """
+    error_msg = "Forbidden"
+    status_code = status.HTTP_403_FORBIDDEN
 
-    def __init__(self, permissions_classes: list):
-        self.permissions_classes = permissions_classes
+    def __init__(self, permissions: List[str]):
+        self.permissions = permissions
 
     def __call__(self, request: Request):
-        for permission_class in self.permissions_classes:
-            permission_class(request=request)
+        if not self.has_required_permissions(request):
+            raise HTTPException(
+                status_code=self.status_code,
+                detail=self.error_msg
+            )
+
+    def has_required_permissions(self, request: Request) -> bool:
+        return PERMISSION_FUNC(request, self.permissions)
