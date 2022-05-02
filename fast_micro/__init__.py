@@ -7,7 +7,7 @@ from starlette_context.middleware import RawContextMiddleware
 from starlette_context.plugins.base import Plugin
 from fast_micro.logger import setup_logging
 from fast_micro.middleware import RequestEncrichMiddleware
-from permission import PERMISSION_FUNC
+from fast_micro.permission import PERMISSION_FUNC
 
 
 def create_app(
