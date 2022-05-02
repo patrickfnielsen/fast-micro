@@ -1,4 +1,5 @@
 import socket, time
+import fast_micro.permission as permission
 from typing import Callable, List, Optional
 from fastapi import FastAPI, Request
 from starlette.middleware import Middleware
@@ -7,7 +8,6 @@ from starlette_context.middleware import RawContextMiddleware
 from starlette_context.plugins.base import Plugin
 from fast_micro.logger import setup_logging
 from fast_micro.middleware import RequestEncrichMiddleware
-from fast_micro.permission import PERMISSION_FUNC
 
 
 def create_app(
@@ -28,8 +28,7 @@ def create_app(
     )
 
     if permission_handler:
-        global PERMISSION_FUNC
-        PERMISSION_FUNC = permission_handler
+        permission.PERMISSION_FUNC = permission_handler
 
     if context_plugins:
         app_context_plugins = app_context_plugins + tuple(context_plugins)
