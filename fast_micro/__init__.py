@@ -39,10 +39,12 @@ def create_app(
         Middleware(RequestEncrichMiddleware, skip_routes=skip_route_logging),
     ]
     
-    if middleware:
-        app_middleware.extend(middleware)
+    if not middleware:
+        middleware = []
+
+    middleware.extend(app_middleware)
     
-    app: FastAPI = FastAPI(middleware=app_middleware)
+    app: FastAPI = FastAPI(middleware=middleware)
 
     @app.get(health_url)
     def _default_get_health():
